@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f7e600">
+  <meta name="description" content="NEXUS — киберпанк-планировщик для Night City">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <title>NEXUS // Night City OS</title>
+  <style>
+    :root{--yellow:#f7e600;--black:#090a0b;--panel:#121416;--panel2:#1b1e20;--line:#34383a;--white:#f1f2ed;--muted:#9ba0a1;--red:#ff3155;--cyan:#42f5e9}
+    *{box-sizing:border-box} body{margin:0;background:var(--black);color:var(--white);font-family:Arial,Helvetica,sans-serif;min-height:100vh;background-image:linear-gradient(rgba(247,230,0,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(247,230,0,.025) 1px,transparent 1px);background-size:22px 22px}
+    button,input,select{font:inherit} button{cursor:pointer}
+    .shell{max-width:780px;margin:auto;padding:18px 14px 34px}
+    header{border-bottom:2px solid var(--yellow);padding:10px 0 16px;display:flex;justify-content:space-between;align-items:flex-end;gap:10px}
+    .eyebrow{font-size:10px;letter-spacing:3px;color:var(--yellow);font-weight:800}.brand{font-size:clamp(34px,9vw,56px);font-weight:1000;letter-spacing:-3px;line-height:.95}.brand span{color:var(--yellow)} .status{font-size:10px;color:var(--cyan);letter-spacing:1px;text-align:right}
+    .topline{display:flex;justify-content:space-between;color:var(--muted);font-size:11px;padding:10px 0 16px;letter-spacing:1px}
+    .tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:14px}.tab{background:#17191a;color:#aeb1ad;border:1px solid #383b3b;padding:12px 6px;font-size:11px;font-weight:900;letter-spacing:1px}.tab.active{background:var(--yellow);color:#090a0b;border-color:var(--yellow);clip-path:polygon(0 0,100% 0,100% 75%,90% 100%,0 100%)}
+    .panel{background:rgba(18,20,22,.96);border:1px solid var(--line);padding:15px;margin-bottom:12px;position:relative}
+    .panel:before{content:"";position:absolute;top:-1px;left:-1px;width:30px;height:3px;background:var(--yellow)}
+    .sectionhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.sectionhead h2{font-size:14px;letter-spacing:1.4px;margin:0}.tag{font-size:10px;color:var(--yellow);border:1px solid #69620b;padding:4px 6px}
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.stat{background:#202325;padding:12px 10px;border-left:2px solid var(--yellow)}.stat b{display:block;font-size:25px;line-height:1.2}.stat span{font-size:9px;color:var(--muted);letter-spacing:1px}
+    .bar{height:7px;background:#2a2d2e;margin-top:12px;overflow:hidden}.bar>div{height:100%;width:0;background:var(--yellow);transition:width .25s}
+    .addrow{display:grid;grid-template-columns:1fr 94px;gap:7px;margin-bottom:8px}.addrow input,.addrow select,.filters select{min-width:0;background:#090a0b;border:1px solid #414546;color:var(--white);padding:12px}
+    .primary{background:var(--yellow);border:0;color:#090a0b;font-weight:900;padding:12px 14px;text-transform:uppercase;font-size:11px;letter-spacing:1px}.secondary{background:#202325;border:1px solid #464a4b;color:var(--white);padding:10px;font-size:11px;font-weight:800}.danger{color:var(--red)}
+    .filters{display:flex;gap:7px;margin:10px 0}.filters select{flex:1;padding:9px;font-size:11px}
+    .task{display:flex;align-items:center;gap:10px;background:#1a1d1e;border:1px solid #303435;padding:11px;margin-top:7px}.task.done{opacity:.55}.task.done .taskname{text-decoration:line-through}.task input[type=checkbox]{accent-color:var(--yellow);width:18px;height:18px;flex-shrink:0}.taskbody{min-width:0;flex:1}.taskname{font-size:13px;overflow-wrap:anywhere}.meta{font-size:9px;color:var(--muted);margin-top:5px;letter-spacing:.6px}.priority{font-size:9px;border:1px solid #535759;padding:4px 5px;color:var(--yellow);white-space:nowrap}.delete{background:none;border:0;color:#777;font-size:18px;padding:2px 5px}.empty{padding:24px 8px;text-align:center;color:#7e8484;font-size:12px;border:1px dashed #353939;margin-top:8px}
+    .focusbox{text-align:center;padding:20px 10px}.timer{font-size:clamp(46px,13vw,72px);font-weight:1000;letter-spacing:-3px;color:var(--yellow);font-variant-numeric:tabular-nums}.focusbox p{color:var(--muted);font-size:12px}.focus-controls{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+    .hidden{display:none!important}.quote{font-size:18px;font-weight:900;line-height:1.4}.quote span{color:var(--yellow)}.easter{color:var(--cyan);font-size:11px;letter-spacing:1px;margin-top:14px}
+    .footer{text-align:center;color:#686e6e;font-size:9px;letter-spacing:1.5px;padding:15px 0}.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--yellow);color:#080909;font-weight:900;padding:12px 16px;font-size:12px;z-index:10;box-shadow:0 0 22px #f7e60055;max-width:90vw}
+    .installhint{border:1px solid #605a08;background:#17170d;padding:10px;font-size:11px;color:#d8d8b7;line-height:1.5;margin-bottom:12px}
+    @media(min-width:600px){.shell{padding:28px 22px}.dashboard{display:grid;grid-template-columns:1fr 1fr;gap:12px}.dashboard .panel{margin:0}.wide{grid-column:1/-1}}
+  </style>
+</head>
+<body>
+<div class="shell">
+  <header><div><div class="eyebrow">PERSONAL OPERATING SYSTEM</div><div class="brand">NE<span>X</span>US</div></div><div class="status">● SYSTEM ONLINE<br><span id="clock">NIGHT CITY // LOCAL</span></div></header>
+  <div class="topline"><span>NC-2077 // TASK CONTROL</span><span id="today"></span></div>
+  <div id="installHint" class="installhint hidden">Чтобы установить NEXUS: открой меню Chrome <b>⋮</b> → «Добавить на главный экран» или «Установить приложение».</div>
+  <nav class="tabs"><button class="tab active" data-tab="day">01 / ДЕНЬ</button><button class="tab" data-tab="stats">02 / СТАТЫ</button><button class="tab" data-tab="city">03 / NIGHT CITY</button></nav>
+
+  <section id="day" class="view">
+    <div class="panel">
+      <div class="sectionhead"><h2>DAILY PERFORMANCE</h2><span class="tag" id="percentTag">0% COMPLETE</span></div>
+      <div class="stats"><div class="stat"><b id="totalCount">0</b><span>ВСЕГО ЗАДАЧ</span></div><div class="stat"><b id="doneCount">0</b><span>ВЫПОЛНЕНО</span></div><div class="stat"><b id="streakCount">0</b><span>XP ЗА ДЕНЬ</span></div></div>
+      <div class="bar"><div id="progress"></div></div>
+    </div>
+    <div class="panel">
+      <div class="sectionhead"><h2>NEW CONTRACT</h2><span class="tag">FIXER BOARD</span></div>
+      <form id="taskForm"><div class="addrow"><input id="taskInput" maxlength="120" placeholder="Что нужно сделать, чумба?" required autocomplete="off"><select id="priority"><option value="HIGH">HIGH</option><option value="MED" selected>MED</option><option value="LOW">LOW</option></select></div><button class="primary" type="submit" style="width:100%">＋ ДОБАВИТЬ КОНТРАКТ</button></form>
+      <div class="filters"><select id="filter"><option value="all">Все контракты</option><option value="active">Активные</option><option value="done">Выполненные</option></select><select id="sort"><option value="priority">По приоритету</option><option value="new">Сначала новые</option><option value="old">Сначала старые</option></select></div>
+      <div id="tasks"></div>
+    </div>
+    <div class="panel">
+      <div class="sectionhead"><h2>FOCUS MODE</h2><span class="tag">DEEP WORK</span></div>
+      <div class="focusbox"><div class="timer" id="timer">25:00</div><p id="focusStatus">Один контракт. Никаких отвлечений.</p><div class="focus-controls"><button class="primary" id="focusStart">▶ START</button><button class="secondary" id="focusReset">↺ RESET</button><button class="secondary" id="focusShort">15 MIN</button></div></div>
+    </div>
+  </section>
+
+  <section id="stats" class="view hidden">
+    <div class="panel"><div class="sectionhead"><h2>OPERATOR PROFILE</h2><span class="tag">LIVE DATA</span></div><div class="stats"><div class="stat"><b id="statRate">0%</b><span>SUCCESS RATE</span></div><div class="stat"><b id="statXP">0</b><span>TOTAL XP</span></div><div class="stat"><b id="statOpen">0</b><span>OPEN CONTRACTS</span></div></div><div class="bar"><div id="statBar"></div></div></div>
+    <div class="panel"><div class="sectionhead"><h2>PRIORITY MATRIX</h2><span class="tag">THREAT LEVEL</span></div><div id="priorityStats"></div></div>
+    <div class="panel"><div class="sectionhead"><h2>FIELD REPORT</h2></div><p id="report" style="font-size:13px;line-height:1.6;color:#bfc3c0"></p><button class="secondary" id="exportBtn">↓ EXPORT BACKUP (.JSON)</button> <button class="secondary" id="clearDone">CLEAR COMPLETED</button></div>
+  </section>
+
+  <section id="city" class="view hidden">
+    <div class="panel"><div class="sectionhead"><h2>NIGHT CITY FEED</h2><span class="tag">EDGERUNNER ARCHIVE</span></div><div class="quote" id="quote">«Не нужно жить вечно, нужно создать что-то, что будет жить вечно».</div><div class="easter" id="easter">HIDDEN SIGNAL: нажми на логотип NEXUS три раза.</div><p style="font-size:12px;color:var(--muted);line-height:1.6">Город не ждёт. Держи голову холодной, выполняй контракты и не забывай, ради чего ты вышел на улицы.</p><button class="primary" id="quoteBtn">↻ СМЕНИТЬ ЦИТАТУ</button></div>
+    <div class="panel"><div class="sectionhead"><h2>AFTERLIFE RADIO</h2><span class="tag">LOCAL PLAYER</span></div><p style="font-size:12px;color:var(--muted);line-height:1.6">Музыка из Cyberpunk 2077 / Edgerunners может быть защищена авторским правом. Этот прототип не встраивает нелицензионные треки — открой свой плейлист в музыкальном сервисе.</p><button class="secondary" id="musicBtn">OPEN MUSIC SEARCH ↗</button><div class="easter">TIP: тройное нажатие на логотип раскрывает скрытый сигнал.</div></div>
+  </section>
+  <div class="footer">NEXUS // LOCAL STORAGE ONLY // STAY PREEM, CHUMBA</div>
+</div>
+<div id="toast" class="toast hidden"></div>
+<script>
+(() => {
+  const KEY='nexus-nightcity-v1';
+  const $=id=>document.getElementById(id);
+  let state={tasks:[],nextId:1,totalXP:0};
+  try { const saved=JSON.parse(localStorage.getItem(KEY)||'null'); if(saved&&Array.isArray(saved.tasks)) state={...state,...saved}; } catch(e){}
+  const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){toast('Не удалось сохранить данные на устройстве.');}};
+  const toast=(msg)=>{const el=$('toast');el.textContent=msg;el.classList.remove('hidden');clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.add('hidden'),2200)};
+  const priorityRank={HIGH:0,MED:1,LOW:2};
+  function render(){
+    const all=state.tasks, done=all.filter(t=>t.done).length, pct=all.length?Math.round(done/all.length*100):0;
+    $('totalCount').textContent=all.length; $('doneCount').textContent=done; $('streakCount').textContent=all.filter(t=>t.done).reduce((n,t)=>n+(t.priority==='HIGH'?30:t.priority==='MED'?20:10),0);
+    $('percentTag').textContent=pct+'% COMPLETE'; $('progress').style.width=pct+'%';
+    let list=all.filter(t=>$('filter').value==='all'||($('filter').value==='active'?!t.done:t.done));
+    const sort=$('sort').value;
+    list.sort((a,b)=>sort==='priority'?(priorityRank[a.priority]-priorityRank[b.priority]||b.id-a.id):sort==='new'?b.id-a.id:a.id-b.id);
+    $('tasks').innerHTML='';
+    if(!list.length){$('tasks').innerHTML='<div class="empty">NO CONTRACTS FOUND // Добавь первую задачу выше</div>';}
+    list.forEach(t=>{
+      const row=document.createElement('div');row.className='task'+(t.done?' done':'');
+      const cb=document.createElement('input');cb.type='checkbox';cb.checked=t.done;cb.setAttribute('aria-label','Завершить задачу');cb.addEventListener('change',()=>{t.done=cb.checked;if(t.done){state.totalXP+=(t.priority==='HIGH'?30:t.priority==='MED'?20:10);toast('КОНТРАКТ ЗАКРЫТ // +XP');}save();render();});
+      const body=document.createElement('div');body.className='taskbody';const name=document.createElement('div');name.className='taskname';name.textContent=t.text;const meta=document.createElement('div');meta.className='meta';meta.textContent='CONTRACT #'+String(t.id).padStart(3,'0')+' // '+new Date(t.created).toLocaleDateString('ru-RU');body.append(name,meta);
+      const pr=document.createElement('span');pr.className='priority';pr.textContent=t.priority;
+      const del=document.createElement('button');del.className='delete';del.textContent='×';del.setAttribute('aria-label','Удалить задачу');del.addEventListener('click',()=>{state.tasks=state.tasks.filter(x=>x.id!==t.id);save();render();toast('КОНТРАКТ УДАЛЁН');});
+      row.append(cb,body,pr,del);$('tasks').append(row);
+    });
+    $('statRate').textContent=pct+'%';$('statXP').textContent=state.totalXP;$('statOpen').textContent=all.length-done;$('statBar').style.width=pct+'%';
+    const counts={HIGH:0,MED:0,LOW:0};all.filter(t=>!t.done).forEach(t=>counts[t.priority]++);
+    $('priorityStats').innerHTML=Object.entries(counts).map(([k,v])=>`<div style="display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid #303435;font-size:12px"><span style="color:${k==='HIGH'?'#ff3155':k==='MED'?'#f7e600':'#42f5e9'}">${k} THREAT</span><b>${v}</b></div>`).join('');
+    $('report').textContent=all.length?`Закрыто ${done} из ${all.length} контрактов. ${all.length-done} ещё ждут своего нетраннера. ${pct>=75?'Отличный темп, держи волну.':pct>=40?'Неплохо. Выбери следующий приоритетный контракт.':'Начни с одной важной задачи — импульс появится после первого шага.'}`:'Пока нет данных. Добавь контракт, чтобы начать собирать статистику.';
+  }
+  $('taskForm').addEventListener('submit',e=>{e.preventDefault();const text=$('taskInput').value.trim();if(!text)return;state.tasks.push({id:state.nextId++,text,priority:$('priority').value,done:false,created:Date.now()});$('taskInput').value='';save();render();toast('НОВЫЙ КОНТРАКТ ПРИНЯТ');});
+  ['filter','sort'].forEach(id=>$(id).addEventListener('change',render));
+  document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b===btn));document.querySelectorAll('.view').forEach(v=>v.classList.toggle('hidden',v.id!==btn.dataset.tab));}));
+  $('clearDone').addEventListener('click',()=>{const n=state.tasks.filter(t=>t.done).length;state.tasks=state.tasks.filter(t=>!t.done);save();render();toast(n?'ЗАВЕРШЁННЫЕ КОНТРАКТЫ ОЧИЩЕНЫ':'НЕТ ЗАВЕРШЁННЫХ КОНТРАКТОВ');});
+  $('exportBtn').addEventListener('click',()=>{const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='nexus-backup.json';a.click();URL.revokeObjectURL(url);toast('BACKUP EXPORTED');});
+  let seconds=25*60, running=false, interval=null;
+  function timerRender(){$('timer').textContent=String(Math.floor(seconds/60)).padStart(2,'0')+':'+String(seconds%60).padStart(2,'0');}
+  function stopTimer(){running=false;clearInterval(interval);interval=null;$('focusStart').textContent='▶ START';}
+  $('focusStart').addEventListener('click',()=>{if(running){stopTimer();$('focusStatus').textContent='Пауза. Переведи дыхание, чумба.';return;}running=true;$('focusStart').textContent='Ⅱ PAUSE';$('focusStatus').textContent='FOCUS ACTIVE // Одна цель за раз.';interval=setInterval(()=>{seconds--;timerRender();if(seconds<=0){stopTimer();seconds=0;timerRender();$('focusStatus').textContent='СЕССИЯ ЗАВЕРШЕНА. Отличная работа!';toast('FOCUS SESSION COMPLETE');}},1000);});
+  $('focusReset').addEventListener('click',()=>{stopTimer();seconds=25*60;timerRender();$('focusStatus').textContent='Один контракт. Никаких отвлечений.';});
+  $('focusShort').addEventListener('click',()=>{stopTimer();seconds=15*60;timerRender();$('focusStatus').textContent='15 MIN SESSION READY';});
+  const quotes=['«Не нужно жить вечно — нужно создать что-то, что будет жить вечно».','«Никогда не переставай бороться».','«В этом городе каждый хочет что-то от тебя. Решай сам, что отдавать».','«Не дай городу решить за тебя, кто ты такой».'];
+  $('quoteBtn').addEventListener('click',()=>{$('quote').textContent=quotes[Math.floor(Math.random()*quotes.length)];});
+  $('musicBtn').addEventListener('click',()=>window.open('https://www.youtube.com/results?search_query=Cyberpunk+2077+Edgerunners+playlist','_blank','noopener'));
+  let logoTaps=0,logoTimer;document.querySelector('.brand').addEventListener('click',()=>{logoTaps++;clearTimeout(logoTimer);logoTimer=setTimeout(()=>logoTaps=0,1000);if(logoTaps>=3){$('easter').textContent='SECRET UNLOCKED // NEVER FADE AWAY, CHUMBA. ★';toast('HIDDEN SIGNAL DECODED');logoTaps=0;}});
+  const now=new Date();$('today').textContent=now.toLocaleDateString('ru-RU',{weekday:'short',day:'2-digit',month:'short'}).toUpperCase();
+  setInterval(()=>$('clock').textContent=new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})+' // LOCAL',10000);
+  if(!window.matchMedia('(display-mode: standalone)').matches && !navigator.standalone) $('installHint').classList.remove('hidden');
+  if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  render();
+})();
+</script>
+</body>
+</html>
