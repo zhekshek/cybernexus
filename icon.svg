@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<rect width="512" height="512" rx="86" fill="#090a0b"/>
+<path d="M52 84H460L414 132H98Z" fill="#f7e600"/>
+<path d="M72 158H440V366H72Z" fill="#151719" stroke="#f7e600" stroke-width="8"/>
+<path d="M117 205L193 282L117 357" fill="none" stroke="#f7e600" stroke-width="25" stroke-linecap="square" stroke-linejoin="miter"/>
+<path d="M252 205L328 282L252 357" fill="none" stroke="#42f5e9" stroke-width="25" stroke-linecap="square"/>
+<path d="M356 205H405M356 282H390M356 357H405" stroke="#f7e600" stroke-width="15"/>
+<path d="M32 412H480V438H32Z" fill="#f7e600"/>
+<text x="256" y="480" font-family="Arial,sans-serif" font-size="27" font-weight="900" text-anchor="middle" fill="#f7e600" letter-spacing="7">NEXUS</text>
+</svg>
