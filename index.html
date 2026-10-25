@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f7e600">
+  <meta name="description" content="NEXUS — киберпанк-планировщик для Night City">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <title>NEXUS // Night City OS</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800;900&family=Rajdhani:wght@400;500;600;700&display=swap');
+    :root{--acid:#fcee0a;--bg:#08090b;--panel:#111316;--panel-hi:#181b1e;--line:#34383b;--ink:#f4f4ef;--muted:#969da2;--red:#ff345d;--cyan:#00f0ff;--green:#b7f34b}
+    *{box-sizing:border-box}
+    html{background:var(--bg);color-scheme:dark}
+    body{margin:0;min-height:100vh;color:var(--ink);font-family:'Rajdhani',Arial,sans-serif;font-size:16px;letter-spacing:.2px;background:
+      radial-gradient(ellipse at 80% 0%,rgba(252,238,10,.08),transparent 34rem),
+      radial-gradient(ellipse at 0% 55%,rgba(0,240,255,.045),transparent 30rem),
+      linear-gradient(135deg,#090a0c 0%,#0b0d10 50%,#08090b 100%);background-attachment:fixed}
+    body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.12;z-index:0;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:4px 4px,4px 4px}
+    button,input,select{font:inherit}button{cursor:pointer;transition:transform .15s,border-color .15s,background .15s}button:active{transform:translateY(1px)}
+    .shell{position:relative;z-index:1;max-width:860px;margin:auto;padding:18px 14px 40px}
+    header{position:relative;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:13px 2px 20px;border-bottom:1px solid rgba(252,238,10,.65)}
+    header:after{content:"";position:absolute;bottom:-2px;left:0;width:82px;height:3px;background:var(--acid);box-shadow:0 0 15px #fcee0a88}
+    .eyebrow{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:3.4px;color:var(--muted);font-weight:700;text-transform:uppercase}
+    .brand{font-family:'Barlow Condensed',Impact,sans-serif;font-size:clamp(49px,12vw,76px);font-weight:900;letter-spacing:-2px;line-height:.86;text-shadow:3px 0 0 rgba(0,240,255,.17);cursor:pointer}
+    .brand span{color:var(--acid);text-shadow:0 0 18px #fcee0a55}
+    .status{font-family:'Rajdhani',sans-serif;font-size:12px;line-height:1.65;color:var(--cyan);letter-spacing:1.2px;text-align:right;font-weight:700}
+    .status:first-line{color:var(--green)}
+    .topline{display:flex;justify-content:space-between;gap:8px;color:#747c81;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;padding:12px 2px 16px;letter-spacing:1.7px}
+    .tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:0 0 16px}
+    .tab{position:relative;min-height:45px;background:rgba(21,24,27,.88);color:#8d969b;border:1px solid #30363a;padding:11px 5px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;letter-spacing:1.5px}
+    .tab:before{content:"";position:absolute;top:0;left:0;width:16px;height:2px;background:#555}
+    .tab.active{color:var(--acid);background:linear-gradient(100deg,rgba(252,238,10,.13),rgba(252,238,10,.025));border-color:#928a0a;box-shadow:inset 0 -2px 0 var(--acid),0 0 18px rgba(252,238,10,.045)}
+    .tab.active:before{width:38px;background:var(--acid);box-shadow:0 0 10px #fcee0a77}
+    .panel{position:relative;background:linear-gradient(135deg,rgba(22,25,28,.97),rgba(13,15,17,.97));border:1px solid #30363a;padding:16px;margin-bottom:12px;box-shadow:0 9px 30px rgba(0,0,0,.17);overflow:hidden}
+    .panel:before{content:"";position:absolute;top:-1px;left:-1px;width:43px;height:2px;background:var(--acid);box-shadow:0 0 12px #fcee0a55}
+    .panel:after{content:"";position:absolute;right:0;top:0;width:22px;height:22px;border-top:1px solid #535a5e;border-right:1px solid #535a5e;opacity:.7;pointer-events:none}
+    .sectionhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+    .sectionhead h2{font-family:'Barlow Condensed',sans-serif;font-size:18px;letter-spacing:1.8px;font-weight:800;margin:0;color:#f0f1eb}
+    .tag{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;color:var(--acid);border:1px solid #615d13;background:rgba(252,238,10,.045);padding:4px 7px;white-space:nowrap}
+    .stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+    .stat{position:relative;background:linear-gradient(145deg,#1c2023,#141719);padding:12px 11px 11px;border:1px solid #2a3033;border-left:2px solid var(--acid);min-width:0}
+    .stat:after{content:"";position:absolute;right:0;bottom:0;width:18px;height:2px;background:#51585c}
+    .stat b{display:block;font-family:'Barlow Condensed',sans-serif;font-size:clamp(25px,7vw,34px);line-height:1.05;font-weight:800;color:#f5f5ef;font-variant-numeric:tabular-nums}
+    .stat span{display:block;font-family:'Barlow Condensed',sans-serif;font-size:10px;color:#929a9f;letter-spacing:1.1px;margin-top:5px;font-weight:700}
+    .bar{height:5px;background:#282d30;margin-top:13px;overflow:hidden;position:relative}
+    .bar>div{height:100%;width:0;background:linear-gradient(90deg,var(--acid),#fff45b);box-shadow:0 0 14px #fcee0a66;transition:width .3s}
+    .addrow{display:grid;grid-template-columns:minmax(0,1fr) 95px;gap:8px;margin-bottom:9px}
+    .addrow input,.addrow select,.filters select{min-width:0;background:#090b0d;border:1px solid #3a4145;color:var(--ink);padding:12px;font-size:14px;border-radius:0;outline:none}
+    input:focus,select:focus{border-color:var(--acid)!important;box-shadow:0 0 0 1px rgba(252,238,10,.13)}
+    .addrow input::placeholder{color:#697176}
+    .primary{background:var(--acid);border:1px solid var(--acid);color:#0a0b0c;font-family:'Barlow Condensed',sans-serif;font-weight:900;padding:12px 14px;text-transform:uppercase;font-size:14px;letter-spacing:1.2px;clip-path:polygon(0 0,100% 0,100% 78%,94% 100%,0 100%);box-shadow:0 0 17px rgba(252,238,10,.08)}
+    .primary:hover{background:#fff94d}
+    .secondary{background:#1b2023;border:1px solid #41494e;color:#dfe3df;padding:10px 12px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:.7px}
+    .secondary:hover{border-color:var(--cyan);color:var(--cyan)}
+    .danger{color:var(--red)}
+    .filters{display:flex;gap:8px;margin:11px 0 10px}.filters select{flex:1;padding:9px;font-size:12px;color:#b8c0c3}
+    .task{position:relative;display:flex;align-items:center;gap:10px;background:linear-gradient(90deg,#1b1f22,#15181a);border:1px solid #30373b;border-left:2px solid #596167;padding:12px;margin-top:7px;transition:border-color .15s,background .15s}
+    .task:hover{border-color:#60696e;border-left-color:var(--acid)}
+    .task.done{opacity:.56;border-left-color:var(--green)}
+    .task.done .taskname{text-decoration:line-through;color:#929a9d}
+    .task input[type=checkbox]{accent-color:var(--acid);width:18px;height:18px;flex-shrink:0}
+    .taskbody{min-width:0;flex:1}.taskname{font-size:15px;font-weight:700;overflow-wrap:anywhere;line-height:1.25}
+    .meta{font-family:'Barlow Condensed',sans-serif;font-size:11px;color:#818b90;margin-top:5px;letter-spacing:1px}
+    .priority{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;letter-spacing:.7px;border:1px solid #4c5357;padding:4px 6px;color:var(--acid);white-space:nowrap}
+    .task:has(.priority) .priority{background:#fcee0a08}
+    .delete{background:none;border:0;color:#727b80;font-size:21px;padding:1px 4px;line-height:1}
+    .delete:hover{color:var(--red)}
+    .empty{padding:27px 10px;text-align:center;color:#788187;font-family:'Barlow Condensed',sans-serif;font-size:14px;letter-spacing:1.2px;border:1px dashed #3a4145;margin-top:8px;background:rgba(0,0,0,.12)}
+    .focusbox{text-align:center;padding:18px 10px 14px;position:relative}
+    .timer{font-family:'Barlow Condensed',sans-serif;font-size:clamp(64px,17vw,92px);font-weight:800;letter-spacing:-1px;color:var(--acid);font-variant-numeric:tabular-nums;line-height:1;text-shadow:0 0 26px #fcee0a20}
+    .focusbox p{color:#929a9e;font-size:14px;margin:10px 0 17px}
+    .focus-controls{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+    .hidden{display:none!important}
+    .quote{font-family:'Barlow Condensed',sans-serif;font-size:clamp(22px,5vw,31px);font-weight:800;line-height:1.23;color:#f4f4ef;max-width:620px}
+    .quote span{color:var(--acid)}
+    .easter{color:var(--cyan);font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:1.3px;margin-top:15px}
+    .footer{text-align:center;color:#626b70;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;padding:17px 0 8px}
+    .toast{position:fixed;bottom:calc(18px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:var(--acid);color:#08090a;font-family:'Barlow Condensed',sans-serif;font-weight:900;letter-spacing:1px;padding:13px 18px;font-size:14px;z-index:10;box-shadow:0 0 28px #fcee0a44;max-width:90vw;text-align:center}
+    .installhint{border:1px solid #5f5a0c;background:linear-gradient(100deg,#201f0c,#111316);padding:12px;font-size:13px;color:#d8d8bd;line-height:1.5;margin-bottom:12px}
+    @media(min-width:640px){.shell{padding:30px 24px 42px}.dashboard{display:grid;grid-template-columns:1fr 1fr;gap:12px}.dashboard .panel{margin:0}.wide{grid-column:1/-1}.panel{padding:19px}.stats{gap:10px}}
+    @media(max-width:390px){.shell{padding:12px 10px 30px}.panel{padding:13px}.sectionhead h2{font-size:16px}.tag{font-size:10px}.status{font-size:10px}.topline{font-size:10px}.tab{font-size:12px}.stat{padding:10px 8px}.stat span{font-size:9px}.task{gap:8px;padding:10px}.priority{font-size:10px}.addrow{grid-template-columns:minmax(0,1fr) 82px}}
+    @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+
+    
+    /* ===== v1.6 : two tabs, portraits live inside the features ===== */
+    .tabs{grid-template-columns:repeat(2,1fr)}
+    .hero{position:relative;display:flex;align-items:flex-end;min-height:158px;margin:-16px -16px 14px;padding:14px 16px;overflow:hidden;background-color:#15191c;background-size:cover;background-repeat:no-repeat;isolation:isolate}
+    .hero:before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(0deg,rgba(9,11,13,.97) 0%,rgba(9,11,13,.55) 38%,rgba(9,11,13,.06) 72%),linear-gradient(90deg,rgba(9,11,13,.72) 0%,rgba(9,11,13,.1) 55%,rgba(255,52,93,.1) 100%)}
+    .hero-copy{position:relative;max-width:68%}
+    .hero-who{font:800 11px 'Barlow Condensed',sans-serif;letter-spacing:2px;color:var(--cyan);margin-bottom:3px;text-shadow:0 1px 6px #000}
+    .hero h2{font:900 26px 'Barlow Condensed',sans-serif;letter-spacing:1px;margin:0;line-height:1;text-shadow:0 2px 10px #000}
+    .hero-say{font-size:13px;line-height:1.35;color:#e3e6e0;margin-top:6px;text-shadow:0 1px 6px #000}
+    .hero .tag{position:absolute;right:12px;top:12px;background:#08090bdc;backdrop-filter:blur(8px)}
+    .hero.tall{min-height:190px}
+    .h-johnny{background-image:url('crew-johnny.webp');background-position:right 22%}
+    .h-lucy{background-image:url('crew-lucy.webp');background-position:right 22%}
+    .h-panam{background-image:url('crew-panam.webp');background-position:right 22%}
+    .h-rebecca{background-image:url('crew-rebecca.webp');background-position:right 22%}
+    .h-judy{background-image:url('crew-judy.webp');background-position:right 22%}
+    .h-david{background-image:url('crew-david.webp');background-position:right 22%}
+    .h-johnny,.h-lucy{background-size:cover}
+    .actions{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px}
+    .actions button{flex:1 1 130px;min-height:42px;padding:8px 10px;font:800 12px 'Barlow Condensed',sans-serif;letter-spacing:1.2px}
+    .duo{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:12px}
+    .duo .mini{position:relative;min-height:128px;display:flex;align-items:flex-end;padding:10px;border:1px solid #343b3f;color:var(--ink);text-align:left;background-size:cover;background-position:center 20%;overflow:hidden;isolation:isolate}
+    .duo .mini:before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(0deg,rgba(5,7,9,.96) 0%,rgba(5,7,9,.35) 55%,transparent 100%)}
+    .duo .mini:hover,.duo .mini.on{border-color:var(--acid);box-shadow:0 0 16px #fcee0a22}
+    .duo .mini b{display:block;font:900 20px 'Barlow Condensed',sans-serif;letter-spacing:1px;text-shadow:0 2px 8px #000}
+    .duo .mini span{display:block;font:800 10px 'Barlow Condensed',sans-serif;letter-spacing:1.3px;color:var(--acid);text-shadow:0 1px 6px #000}
+    .duo .mini.johnny{background-image:url('crew-johnny.webp')}
+    .duo .mini.lucy{background-image:url('crew-lucy.webp')}
+    .say{margin:0 0 12px;border-left:2px solid var(--cyan);padding:9px 11px;background:#00f0ff08;color:#c1c9cc;font-size:13px;line-height:1.5}
+    .say b{color:var(--cyan)}
+    /* cyberpsychosis */
+    .psy-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;font:800 12px 'Barlow Condensed',sans-serif;letter-spacing:1.5px}
+    .psy-bar{height:10px;background:#1b1f22;border:1px solid #343b3f;position:relative;overflow:hidden}
+    .psy-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--green),var(--acid),var(--red));background-size:300px 100%;transition:width .5s}
+    .psy-note{margin-top:9px;font-size:13px;line-height:1.5;color:#bfc3c0}
+    .panel.psy-warn{border-color:#a8901a}
+    .panel.psy-crit{border-color:var(--red);box-shadow:0 0 22px #ff345d30;animation:pulse 1.6s infinite}
+    @keyframes pulse{50%{box-shadow:0 0 34px #ff345d66}}
+    .implants{display:grid;grid-template-columns:1fr;gap:8px;margin-top:4px}
+    .implant{display:flex;gap:10px;align-items:center;padding:10px 11px;border:1px solid #30363a;background:#0e1013}
+    .implant .ic{flex:0 0 38px;height:38px;display:grid;place-items:center;border:1px solid #3a4145;font:900 14px 'Barlow Condensed',sans-serif;color:#59636a}
+    .implant .tx{font-size:13px;line-height:1.35;color:#9aa1a5}
+    .implant .tx b{display:block;font:800 14px 'Barlow Condensed',sans-serif;letter-spacing:1px;color:#6b747a}
+    .implant.on{border-color:#7d7608;background:linear-gradient(100deg,rgba(252,238,10,.08),transparent)}
+    .implant.on .ic{border-color:var(--acid);color:var(--acid);box-shadow:0 0 10px #fcee0a33}
+    .implant.on .tx b{color:var(--acid)}
+    .implant.on .tx{color:#d4d8d2}
+    .rank{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+    .rank .lv{font:900 46px 'Barlow Condensed',sans-serif;color:var(--acid);line-height:.9;text-shadow:0 0 18px #fcee0a55}
+    .rank .lt{font:800 11px 'Barlow Condensed',sans-serif;letter-spacing:1.6px;color:var(--muted)}
+    .rank .ln{font:800 18px 'Barlow Condensed',sans-serif;letter-spacing:1px}
+    .smasher{position:relative;min-height:150px;margin:-16px -16px 14px;display:flex;align-items:flex-end;padding:14px 16px;background:linear-gradient(135deg,#3b0f1c,#12090c);overflow:hidden}
+    .smasher.hidden{display:none}
+    .smasher:after{content:"ADAM SMASHER";position:absolute;right:-6px;top:6px;font:900 54px 'Barlow Condensed',sans-serif;letter-spacing:2px;color:#ff345d26}
+    .smasher p{position:relative;margin:0;font-size:15px;line-height:1.4;color:#ffd5dc;text-shadow:0 1px 6px #000}
+    .smasher p b{display:block;font:900 22px 'Barlow Condensed',sans-serif;letter-spacing:1.4px;color:var(--red)}
+    @media(max-width:390px){.hero{min-height:140px}.hero h2{font-size:23px}.hero-copy{max-width:74%}}
+    @media(prefers-reduced-motion:reduce){.panel.psy-crit{animation:none}}
+    .updatebar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 10px;padding:9px 11px;border:1px solid var(--acid);background:#fcee0a14;font-size:13px;color:#e6e8e2}.updatebar.hidden{display:none}.updatebar button{padding:7px 12px;font:800 11px 'Barlow Condensed',sans-serif;letter-spacing:1px;background:var(--acid);color:#090a0b;border:0}
+    
+  </style>
+</head>
+<body>
+<div class="shell">
+  <header><div><div class="eyebrow">PERSONAL OPERATING SYSTEM</div><div class="brand">NE<span>X</span>US</div></div><div class="status">● SYSTEM ONLINE<br><span id="clock">NIGHT CITY // LOCAL</span></div></header>
+  <div class="topline"><span>NC-2077 // TASK CONTROL</span><span id="today"></span></div>
+  <div id="updateBar" class="updatebar hidden"><span>Доступна новая версия NEXUS</span><button type="button" id="updateBtn">ОБНОВИТЬ</button></div>
+  <div id="installHint" class="installhint hidden">Чтобы установить NEXUS: открой меню Chrome <b>⋮</b> → «Добавить на главный экран» или «Установить приложение».</div>
+  <nav class="tabs"><button class="tab active" data-tab="day">01 / ДЕНЬ</button><button class="tab" data-tab="stats">02 / ПРОФИЛЬ</button></nav>
+
+  <section id="day" class="view">
+    <div class="panel">
+      <div class="hero h-rebecca"><span class="tag"><span id="percentTag">0% COMPLETE</span></span><div class="hero-copy"><div class="hero-who">REBECCA // CHAOS ENGINE</div><h2>ПРОГРЕСС ДНЯ</h2><div class="hero-say">Не надо идеально — надо начать!</div></div></div>
+      <div class="stats"><div class="stat"><b id="totalCount">0</b><span>ВСЕГО ЗАДАЧ</span></div><div class="stat"><b id="doneCount">0</b><span>ВЫПОЛНЕНО</span></div><div class="stat"><b id="streakCount">0</b><span>XP ЗА ДЕНЬ</span></div></div>
+      <div class="bar"><div id="progress"></div></div>
+      <div class="actions"><button type="button" class="secondary" id="boostBtn">⚡ ПОЛУЧИТЬ БУСТ</button></div>
+      <div id="sayRebecca" class="say hidden"></div>
+    </div>
+
+    <div class="panel">
+      <div class="hero h-david"><span class="tag">FIXER BOARD</span><div class="hero-copy"><div class="hero-who">DAVID // EDGERUNNER</div><h2>КОНТРАКТЫ</h2><div class="hero-say">Начни с малого. Потом ещё шаг.</div></div></div>
+      <form id="taskForm"><div class="addrow"><input id="taskInput" maxlength="120" placeholder="Что нужно сделать, чумба?" required autocomplete="off"><select id="priority"><option value="HIGH">HIGH</option><option value="MED" selected>MED</option><option value="LOW">LOW</option></select></div><button class="primary" type="submit" style="width:100%">＋ ДОБАВИТЬ КОНТРАКТ</button></form>
+      <div class="actions" style="margin-top:12px"><button type="button" class="secondary" id="davidBtn">⟶ НАЙТИ ЛЁГКИЙ КОНТРАКТ</button></div>
+      <div id="sayDavid" class="say hidden"></div>
+    </div>
+
+    <div class="panel">
+      <div class="hero h-panam"><span class="tag">THREAT LEVEL</span><div class="hero-copy"><div class="hero-who">PANAM // ALDECALDOS</div><h2>ПРИОРИТЕТЫ</h2><div class="hero-say">Держи курс. Срочное — вперёд.</div></div></div>
+      <div class="actions"><button type="button" class="secondary" id="panamBtn">🔥 ПОКАЗАТЬ HIGH</button></div>
+      <div class="filters"><select id="filter"><option value="all">Все контракты</option><option value="active">Активные</option><option value="done">Выполненные</option></select><select id="sort"><option value="priority">По приоритету</option><option value="new">Сначала новые</option><option value="old">Сначала старые</option></select></div>
+      <div id="sayPanam" class="say hidden"></div>
+      <div id="tasks"></div>
+      <div class="actions" style="margin-top:12px"><button type="button" class="secondary" id="judyBtn">✦ РАЗБИТЬ НА ШАГИ</button></div>
+      <div id="sayJudy" class="say hidden"></div>
+    </div>
+
+    <div class="panel">
+      <div class="sectionhead"><h2>FOCUS MODE</h2><span class="tag">JOHNNY / LUCY</span></div>
+      <div class="duo">
+        <button type="button" class="mini johnny" id="johnnyBtn"><div><b>JOHNNY</b><span>ФОКУС // 25 МИН</span></div></button>
+        <button type="button" class="mini lucy" id="lucyBtn"><div><b>LUCY</b><span>ТИХИЙ РЕЖИМ // 15 МИН</span></div></button>
+      </div>
+      <div class="focusbox"><div class="timer" id="timer">25:00</div><p id="focusStatus">Выбери напарника: Johnny — рывок, Lucy — тишина.</p><div class="focus-controls"><button class="primary" id="focusStart">▶ START</button><button class="secondary" id="focusReset">↺ RESET</button></div></div>
+    </div>
+  </section>
+
+  <section id="stats" class="view hidden">
+    <div class="panel">
+      <div id="smasher" class="smasher hidden"><p><b>ADAM SMASHER СЛЕДИТ ЗА ТОБОЙ</b><span id="smasherText">Он уже близко. Сделай паузу.</span></p></div>
+      <div class="sectionhead"><h2>NETRUNNER PROFILE</h2><span class="tag">LIVE DATA</span></div>
+      <div class="rank"><div class="lv" id="rankLv">1</div><div><div class="lt">УРОВЕНЬ</div><div class="ln" id="rankName">STREET KID</div></div></div>
+      <div class="stats"><div class="stat"><b id="statRate">0%</b><span>SUCCESS RATE</span></div><div class="stat"><b id="statXP">0</b><span>TOTAL XP</span></div><div class="stat"><b id="statOpen">0</b><span>OPEN CONTRACTS</span></div></div>
+      <div class="bar"><div id="statBar"></div></div>
+    </div>
+
+    <div class="panel" id="psyPanel">
+      <div class="sectionhead"><h2>CYBERPSYCHOSIS RISK</h2><span class="tag" id="psyTag">STABLE</span></div>
+      <div class="psy-head"><span>УРОВЕНЬ РИСКА</span><span id="psyPct">0%</span></div>
+      <div class="psy-bar"><i id="psyFill"></i></div>
+      <p class="psy-note" id="psyNote">Имплантов пока нет. Закрывай контракты — город отблагодарит.</p>
+      <div class="actions" style="margin-top:12px"><button type="button" class="secondary" id="restBtn">☾ ОТДОХНУТЬ (СБРОС НАГРУЗКИ)</button></div>
+    </div>
+
+    <div class="panel">
+      <div class="sectionhead"><h2>IMPLANTS // ИМПЛАНТЫ</h2><span class="tag" id="implantCount">0 / 6</span></div>
+      <div class="implants" id="implants"></div>
+    </div>
+
+    <div class="panel"><div class="sectionhead"><h2>PRIORITY MATRIX</h2><span class="tag">THREAT LEVEL</span></div><div id="priorityStats"></div></div>
+    <div class="panel"><div class="sectionhead"><h2>FIELD REPORT</h2></div><p id="report" style="font-size:13px;line-height:1.6;color:#bfc3c0"></p><button class="secondary" id="exportBtn">↓ EXPORT BACKUP (.JSON)</button> <button class="secondary" id="clearDone">CLEAR COMPLETED</button></div>
+
+    <div class="panel">
+      <div class="sectionhead"><h2>NIGHT CITY FEED</h2><span class="tag">EDGERUNNER ARCHIVE</span></div>
+      <div class="quote" id="quote">«Не нужно жить вечно, нужно создать что-то, что будет жить вечно».</div>
+      <div class="easter" id="easter">HIDDEN SIGNAL: нажми на логотип NEXUS три раза.</div>
+      <button class="primary" id="quoteBtn">↻ СМЕНИТЬ ЦИТАТУ</button>
+      <p style="font-size:12px;color:var(--muted);line-height:1.6;margin-top:14px">Музыка из Cyberpunk 2077 / Edgerunners может быть защищена авторским правом, поэтому приложение не встраивает треки — открой свой плейлист в музыкальном сервисе.</p>
+      <button class="secondary" id="musicBtn">AFTERLIFE // OPEN MUSIC SEARCH ↗</button>
+    </div>
+  </section>
+  <div class="footer">NEXUS // LOCAL STORAGE ONLY // STAY PREEM, CHUMBA</div>
+</div>
+<div id="toast" class="toast hidden"></div>
+
+<script>
+(() => {
+  const KEY='nexus-nightcity-v1';
+  const $=id=>document.getElementById(id);
+  let state={tasks:[],nextId:1,totalXP:0,load:0,loadDay:'',lastRest:0};
+  try { const saved=JSON.parse(localStorage.getItem(KEY)||'null'); if(saved&&Array.isArray(saved.tasks)) state={...state,...saved}; } catch(e){}
+  const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){toast('Не удалось сохранить данные на устройстве.');}};
+  const toast=(msg)=>{const el=$('toast');el.textContent=msg;el.classList.remove('hidden');clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.add('hidden'),2200)};
+  const priorityRank={HIGH:0,MED:1,LOW:2};
+  function render(){
+    const all=state.tasks, done=all.filter(t=>t.done).length, pct=all.length?Math.round(done/all.length*100):0;
+    $('totalCount').textContent=all.length; $('doneCount').textContent=done; $('streakCount').textContent=all.filter(t=>t.done).reduce((n,t)=>n+(t.priority==='HIGH'?30:t.priority==='MED'?20:10),0);
+    $('percentTag').textContent=pct+'% COMPLETE'; $('progress').style.width=pct+'%';
+    let list=all.filter(t=>$('filter').value==='all'||($('filter').value==='active'?!t.done:t.done));
+    const sort=$('sort').value;
+    list.sort((a,b)=>sort==='priority'?(priorityRank[a.priority]-priorityRank[b.priority]||b.id-a.id):sort==='new'?b.id-a.id:a.id-b.id);
+    $('tasks').innerHTML='';
+    if(!list.length){$('tasks').innerHTML='<div class="empty">NO CONTRACTS FOUND // Добавь первую задачу выше</div>';}
+    list.forEach(t=>{
+      const row=document.createElement('div');row.className='task'+(t.done?' done':'');
+      const cb=document.createElement('input');cb.type='checkbox';cb.checked=t.done;cb.setAttribute('aria-label','Завершить задачу');cb.addEventListener('change',()=>{t.done=cb.checked;if(t.done){state.totalXP+=(t.priority==='HIGH'?30:t.priority==='MED'?20:10);bumpLoad(t.priority);toast('КОНТРАКТ ЗАКРЫТ // +XP');}save();render();});
+      const body=document.createElement('div');body.className='taskbody';const name=document.createElement('div');name.className='taskname';name.textContent=t.text;const meta=document.createElement('div');meta.className='meta';meta.textContent='CONTRACT #'+String(t.id).padStart(3,'0')+' // '+new Date(t.created).toLocaleDateString('ru-RU');body.append(name,meta);
+      const pr=document.createElement('span');pr.className='priority';pr.textContent=t.priority;
+      const del=document.createElement('button');del.className='delete';del.textContent='×';del.setAttribute('aria-label','Удалить задачу');del.addEventListener('click',()=>{state.tasks=state.tasks.filter(x=>x.id!==t.id);save();render();toast('КОНТРАКТ УДАЛЁН');});
+      row.append(cb,body,pr,del);$('tasks').append(row);
+    });
+    $('statRate').textContent=pct+'%';$('statXP').textContent=state.totalXP;$('statOpen').textContent=all.length-done;$('statBar').style.width=pct+'%';
+    const counts={HIGH:0,MED:0,LOW:0};all.filter(t=>!t.done).forEach(t=>counts[t.priority]++);
+    $('priorityStats').innerHTML=Object.entries(counts).map(([k,v])=>`<div style="display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid #303435;font-size:12px"><span style="color:${k==='HIGH'?'#ff3155':k==='MED'?'#f7e600':'#42f5e9'}">${k} THREAT</span><b>${v}</b></div>`).join('');
+    $('report').textContent=all.length?`Закрыто ${done} из ${all.length} контрактов. ${all.length-done} ещё ждут своего нетраннера. ${pct>=75?'Отличный темп, держи волну.':pct>=40?'Неплохо. Выбери следующий приоритетный контракт.':'Начни с одной важной задачи — импульс появится после первого шага.'}`:'Пока нет данных. Добавь контракт, чтобы начать собирать статистику.';
+    renderProfile();
+  }
+  $('taskForm').addEventListener('submit',e=>{e.preventDefault();const text=$('taskInput').value.trim();if(!text)return;state.tasks.push({id:state.nextId++,text,priority:$('priority').value,done:false,created:Date.now()});$('taskInput').value='';save();render();toast('НОВЫЙ КОНТРАКТ ПРИНЯТ');});
+  ['filter','sort'].forEach(id=>$(id).addEventListener('change',render));
+  document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b===btn));document.querySelectorAll('.view').forEach(v=>v.classList.toggle('hidden',v.id!==btn.dataset.tab));}));
+  $('clearDone').addEventListener('click',()=>{const n=state.tasks.filter(t=>t.done).length;state.tasks=state.tasks.filter(t=>!t.done);save();render();toast(n?'ЗАВЕРШЁННЫЕ КОНТРАКТЫ ОЧИЩЕНЫ':'НЕТ ЗАВЕРШЁННЫХ КОНТРАКТОВ');});
+  $('exportBtn').addEventListener('click',()=>{const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='nexus-backup.json';a.click();URL.revokeObjectURL(url);toast('BACKUP EXPORTED');});
+  let seconds=25*60, running=false, interval=null;
+  function timerRender(){$('timer').textContent=String(Math.floor(seconds/60)).padStart(2,'0')+':'+String(seconds%60).padStart(2,'0');}
+  function stopTimer(){running=false;clearInterval(interval);interval=null;$('focusStart').textContent='▶ START';}
+  $('focusStart').addEventListener('click',()=>{if(running){stopTimer();$('focusStatus').textContent='Пауза. Переведи дыхание, чумба.';return;}running=true;$('focusStart').textContent='Ⅱ PAUSE';$('focusStatus').textContent='FOCUS ACTIVE // Одна цель за раз.';interval=setInterval(()=>{seconds--;timerRender();if(seconds<=0){stopTimer();seconds=0;timerRender();$('focusStatus').textContent='СЕССИЯ ЗАВЕРШЕНА. Отличная работа!';toast('FOCUS SESSION COMPLETE');}},1000);});
+  $('focusReset').addEventListener('click',()=>{stopTimer();seconds=25*60;timerRender();$('focusStatus').textContent='Выбери напарника: Johnny — рывок, Lucy — тишина.';});
+  const quotes=['«Не нужно жить вечно — нужно создать что-то, что будет жить вечно».','«Никогда не переставай бороться».','«В этом городе каждый хочет что-то от тебя. Решай сам, что отдавать».','«Не дай городу решить за тебя, кто ты такой».'];
+  $('quoteBtn').addEventListener('click',()=>{$('quote').textContent=quotes[Math.floor(Math.random()*quotes.length)];});
+  $('musicBtn').addEventListener('click',()=>window.open('https://www.youtube.com/results?search_query=Cyberpunk+2077+Edgerunners+playlist','_blank','noopener'));
+  
+  // ===== v1.6 : levels, implants, cyberpsychosis =====
+  const IMPLANTS=[
+    {xp:40,  ic:'OP', name:'OPTICS MK.I',      desc:'Улучшенное зрение: видишь приоритеты быстрее.'},
+    {xp:100, ic:'RF', name:'REFLEX BOOSTER',   desc:'Быстрая реакция: легче начинать задачи.'},
+    {xp:180, ic:'NR', name:'NEURAL LINK',      desc:'Нейролинк: ускоренное планирование дня.'},
+    {xp:280, ic:'SK', name:'SKIN WEAVE',       desc:'Броня от отвлечений и срочных мелочей.'},
+    {xp:400, ic:'MN', name:'MANTIS BLADES',    desc:'Режешь большие задачи на части.'},
+    {xp:560, ic:'SD', name:'SANDEVISTAN',      desc:'Замедление времени: максимальный темп. Риск растёт быстро.'}
+  ];
+  const RANKS=['STREET KID','FIXER ROOKIE','MERC','NETRUNNER','EDGERUNNER','NIGHT CITY LEGEND'];
+  const levelFromXP=xp=>Math.min(6,1+IMPLANTS.filter(i=>xp>=i.xp).length);
+  const implantsOn=()=>IMPLANTS.filter(i=>state.totalXP>=i.xp).length;
+  const todayKey=()=>new Date().toISOString().slice(0,10);
+  function ensureDay(){if(state.loadDay!==todayKey()){state.loadDay=todayKey();state.load=0;}}
+  function bumpLoad(priority){
+    ensureDay();
+    const base=priority==='HIGH'?12:priority==='MED'?8:5;
+    state.load=Math.min(150,state.load+base+implantsOn()*2);
+  }
+  // risk 0..100 : daily load plus a little baseline for every implant
+  function riskPct(){ensureDay();return Math.min(100,Math.round(state.load+implantsOn()*3));}
+  function renderProfile(){
+    ensureDay();
+    const n=implantsOn(), lv=levelFromXP(state.totalXP), risk=riskPct();
+    $('rankLv').textContent=lv; $('rankName').textContent=RANKS[lv-1];
+    $('implantCount').textContent=n+' / '+IMPLANTS.length;
+    $('implants').innerHTML=IMPLANTS.map(i=>{const on=state.totalXP>=i.xp;return `<div class="implant${on?' on':''}"><div class="ic">${on?i.ic:'🔒'}</div><div class="tx"><b>${on?i.name:'ЗАБЛОКИРОВАНО // '+i.xp+' XP'}</b>${on?i.desc:'Ещё '+(i.xp-state.totalXP)+' XP до установки.'}</div></div>`;}).join('');
+    $('psyPct').textContent=risk+'%'; $('psyFill').style.width=risk+'%';
+    const panel=$('psyPanel');panel.classList.remove('psy-warn','psy-crit');
+    let tag='STABLE',note;
+    if(n===0) note='Имплантов пока нет. Закрывай контракты — город отблагодарит.';
+    else note='Установлено имплантов: '+n+'. Чем больше железа, тем быстрее копится нагрузка.';
+    if(risk>=85){tag='CYBERPSYCHOSIS';panel.classList.add('psy-crit');note='ВНИМАНИЕ! Критическая нагрузка. Ты на грани киберпсихоза. Прекрати контракты и отдохни — сейчас же.';}
+    else if(risk>=60){tag='DANGER';panel.classList.add('psy-warn');note='Нагрузка высокая. Сделай паузу, выпей воды, пройдись. Иначе будет поздно.';}
+    else if(risk>=30){tag='ELEVATED';note+=' Нагрузка растёт — не забывай про короткие перерывы.';}
+    $('psyTag').textContent=tag; $('psyNote').textContent=note;
+    const sm=$('smasher');
+    if(risk>=85){sm.classList.remove('hidden');$('smasherText').textContent='Он уже близко. Закрыто слишком много контрактов за день — отдыхай, пока он не нашёл тебя.';}
+    else if(risk>=60&&n>0){sm.classList.remove('hidden');$('smasherText').textContent='Смэшер наблюдает за тобой. Ещё пара контрактов — и он придёт. Сделай паузу.';}
+    else sm.classList.add('hidden');
+  }
+  let lastRiskLevel=0;
+  function riskToast(){
+    const r=riskPct(), lvl=r>=85?2:r>=60?1:0;
+    if(lvl>lastRiskLevel){toast(lvl===2?'⚠ КИБЕРПСИХОЗ БЛИЗКО // ADAM SMASHER РЯДОМ':'⚠ ВЫСОКАЯ НАГРУЗКА // СДЕЛАЙ ПАУЗУ');}
+    lastRiskLevel=lvl;
+  }
+  $('restBtn').addEventListener('click',()=>{
+    ensureDay();
+    if(state.load<=0){toast('ТЫ И ТАК В НОРМЕ, ЧУМБА');return;}
+    state.load=Math.max(0,state.load-40);state.lastRest=Date.now();save();render();lastRiskLevel=0;riskToast();toast('ОТДЫХ ЗАСЧИТАН // НАГРУЗКА СНИЖЕНА');
+  });
+  // implant unlock toasts
+  const _renderOrig=render;
+  let knownImplants=implantsOn();
+
+  // ===== Crew actions (portraits now live inside the features) =====
+  const say=(id,who,html)=>{const el=$(id);el.innerHTML='<b>'+who+' //</b> '+html;el.classList.remove('hidden');};
+  const goDay=()=>document.querySelector('[data-tab="day"]').click();
+  $('johnnyBtn').addEventListener('click',()=>{
+    stopTimer();seconds=25*60;timerRender();
+    $('focusStatus').textContent='JOHNNY MODE // 25 MIN FOCUS. Сосредоточься, чёрт возьми.';
+    $('johnnyBtn').classList.add('on');$('lucyBtn').classList.remove('on');
+    $('focusStart').click();toast('JOHNNY MODE ACTIVATED');
+  });
+  $('lucyBtn').addEventListener('click',()=>{
+    stopTimer();seconds=15*60;timerRender();
+    $('focusStatus').textContent='LUCY MODE // 15 MIN QUIET RUN. Тихо и без переключений.';
+    $('lucyBtn').classList.add('on');$('johnnyBtn').classList.remove('on');
+    $('focusStart').click();toast('LUCY MODE ACTIVATED');
+  });
+  $('panamBtn').addEventListener('click',()=>{
+    $('filter').value='active';$('sort').value='priority';render();
+    const high=state.tasks.filter(t=>!t.done&&t.priority==='HIGH').length;
+    say('sayPanam','PANAM',high?('Срочных контрактов: <b>'+high+'</b>. Они наверху — разбирай по очереди.'):'Срочных контрактов нет. Можно взять что-то из MED.');
+    toast('PRIORITY MATRIX UPDATED');
+  });
+  $('davidBtn').addEventListener('click',()=>{
+    const easiest=state.tasks.filter(t=>!t.done).sort((a,b)=>(priorityRank[b.priority]-priorityRank[a.priority])||a.id-b.id)[0];
+    if(easiest){$('filter').value='active';$('sort').value='old';render();say('sayDavid','DAVID','Начни с самого лёгкого: «'+escapeHtml(easiest.text)+'». Главное — набрать темп.');}
+    else say('sayDavid','DAVID','Контрактов нет. Добавь одну маленькую задачу и закрой её.');
+    toast('MOMENTUM PROTOCOL');
+  });
+  $('judyBtn').addEventListener('click',()=>{
+    const a=state.tasks.find(t=>!t.done);
+    say('sayJudy','JUDY',a?('Первый шаг для «'+escapeHtml(a.text)+'»: потрать 5 минут на подготовку и определи самый маленький измеримый результат.'):'Добавь задачу — и я помогу разбить её на первый шаг.');
+    toast('CREATIVE MODE READY');
+  });
+  $('boostBtn').addEventListener('click',()=>{
+    const boosts=['Пять минут — и ты уже впереди вчерашней версии себя.','Не жди идеального момента. Запусти первый шаг.','Маленький контракт. Быстрый результат. Дальше — больше.','Эй, чумба! Не надо идеально — надо начать. Погнали!'];
+    say('sayRebecca','REBECCA',boosts[Math.floor(Math.random()*boosts.length)]);toast('QUICK BOOST // GO GO GO');
+  });
+
+  function escapeHtml(value){return String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+  let logoTaps=0,logoTimer;document.querySelector('.brand').addEventListener('click',()=>{logoTaps++;clearTimeout(logoTimer);logoTimer=setTimeout(()=>logoTaps=0,1000);if(logoTaps>=3){$('easter').textContent='SECRET UNLOCKED // NEVER FADE AWAY, CHUMBA. ★';toast('HIDDEN SIGNAL DECODED');logoTaps=0;}});
+  const now=new Date();$('today').textContent=now.toLocaleDateString('ru-RU',{weekday:'short',day:'2-digit',month:'short'}).toUpperCase();
+  setInterval(()=>$('clock').textContent=new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})+' // LOCAL',10000);
+  if(!window.matchMedia('(display-mode: standalone)').matches && !navigator.standalone) $('installHint').classList.remove('hidden');
+  if('serviceWorker' in navigator && location.protocol.startsWith('http')){
+    const showUpdate=reg=>{
+      const bar=$('updateBar');if(!bar)return;
+      bar.classList.remove('hidden');
+      $('updateBtn').onclick=()=>{
+        if(reg.waiting)reg.waiting.postMessage('SKIP_WAITING');
+        else location.reload();
+      };
+    };
+    navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(reg=>{
+      if(reg.waiting&&navigator.serviceWorker.controller)showUpdate(reg);
+      reg.addEventListener('updatefound',()=>{
+        const nw=reg.installing;if(!nw)return;
+        nw.addEventListener('statechange',()=>{
+          if(nw.state==='installed'&&navigator.serviceWorker.controller)showUpdate(reg);
+        });
+      });
+      reg.update().catch(()=>{});
+      document.addEventListener('visibilitychange',()=>{if(!document.hidden)reg.update().catch(()=>{});});
+      setInterval(()=>reg.update().catch(()=>{}),30*60*1000);
+    }).catch(()=>{});
+    let reloaded=false;
+    navigator.serviceWorker.addEventListener('controllerchange',()=>{if(reloaded)return;reloaded=true;location.reload();});
+  }
+  render();riskToast();
+})();
+</script>
+</body>
+</html>
